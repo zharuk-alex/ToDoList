@@ -1,0 +1,7 @@
+@import "~bootstrap/scss/bootstrap";
+
+.completed {
+    text-decoration: line-through;
+    color: #333;
+    @extend .text-center;
+} 
