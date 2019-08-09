@@ -28,10 +28,10 @@ export class ItemComponent implements OnInit {
   titleShown=false;
   deleteProcess=false;
   // 
-  @Output() deleteItemEvent = new EventEmitter<number>();
+  @Output() deleteItemEvent = new EventEmitter<any>();
   
 
-  delItem(id:number){
+  delItem(id:any){
     this.deleteItemEvent.emit(this.todo.id);
     this.deleteProcess=true;
   }
