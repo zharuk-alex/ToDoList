@@ -1,13 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { faSquare, faCheckSquare } from '@fortawesome/free-solid-svg-icons';
+import { Component, ViewChild, OnInit, Output, AfterViewInit, EventEmitter } from '@angular/core';
 
+import { iTodo, iTodoNew } from './models/todo';
+import { iUser } from './models/user';
+import { TodoService } from './services/todo.service';
 
-interface NewItem  {
-  id: number,
-  status: boolean,
-  text: string,
-  title: string
-}
 
 @Component({
   selector: 'app-root',
@@ -15,63 +11,47 @@ interface NewItem  {
   styleUrls: ['./app.component.scss']
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit  {
+  
   title = 'ToDoList';
-  
-  newTitle="";
-  newText="";
-  faSquare = faSquare;
-  faCheckSquare = faCheckSquare;
-  
+  todosArray: iTodo[] = [];
+  currentItemRemove:any;
 
-
-  addNew() {
-    const newItem:NewItem = {
-      id: this.todosArray.length+1,
-      status: false,
-      text: this.newText,
-      title: this.newTitle
-    }
-
-    this.todosArray.unshift(newItem);
-    this.newText = "";
-    this.newTitle = "";
-  }
-  
-  delItem(text) {
-    const index = this.todosArray.findIndex((el) => el.text === text);
-    this.todosArray.splice(index,1);
-  }
-
-  show(){
-    console.log(this.todosArray);
-  }
-
-  todosArray = [];
-
-  getData() {
-    fetch('https://jsonplaceholder.typicode.com/todos')
-    .then(response => response.json())
-    .then(todos => todos.map((td) => {
-      return {
-        id: td.id,
-        status: td.completed,
-        text: td.title,
-        title: td.reqtitle ? td.reqtitle : `Untitled ${td.id}`
-      }
-    }))
-
-    .then(todos => {
-      todos.length = 10;
-      return todos;
+  constructor(private todoServices: TodoService){
+    this.todoServices.getTodos().then((td) => {
+      this.todosArray = td;
+      console.log(this.todosArray)
     })
-    .then(todos => {
-      return this.todosArray = todos;
+    
+  }
+  // 
+  addItem($event:iTodoNew){
+    this.todoServices.createTodo($event).then((res) => {
+      const newItem: iTodo = {
+        id: res.id,
+        status: false,
+        text: res['body'],
+        title: res.title
+      }
+      this.todosArray.unshift(newItem);
+    })
+  }
+  // 
+  updateItem($event:number){
+    console.log($event);
+  }
+  // 
+  deleteItem($event:number) {
+    this.todoServices.deleteTodo($event).then((res) => {
+      if(res==200){
+        const index = this.todosArray.findIndex((el) => el.id === $event);
+        this.todosArray.splice(index,1);
+      }
     })
   }
 
   ngOnInit(): void {
-    this.getData();
+   
   }
 
 }
